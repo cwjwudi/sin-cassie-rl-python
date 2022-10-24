@@ -1,0 +1,9 @@
+torch
+gym
+numpy
+stable-baselines3
+tensorboard
+mujoco
+mujoco-python-viewer
+pyyaml
+hydra-core

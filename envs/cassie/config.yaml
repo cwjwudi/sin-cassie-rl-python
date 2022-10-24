@@ -1,0 +1,61 @@
+rbtname: cassie
+
+system: # 机器人系统参数
+  GRAV: -9.8    # 重力加速度
+  TSf: 0.002   # time step in float
+  Tend: 1000   # 测试时间 second
+  root_path: ".."
+  mjcf_path: "/resources/robots/cassie/cassie.xml"
+  log_path: &log_path
+    dir: ../log/Cassie/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  visual: False
+  dynamics_randomization: True
+
+trainer:
+  policy: "MlpPolicy"
+  n_steps: 512
+  batch_size: 256
+  pi_net_arch: [512, 512]
+  vf_net_arch: [512, 512]
+  device: "cuda:0"
+
+  n_eval_episodes: 10
+
+env:
+  num_envs: 16
+  state_buffer_size: 1
+  time_limit: 600  # 最大600个step
+
+commands:
+  lin_vel_x:        [0.4, 0.7]
+  lin_vel_y:        [0.0, 0.0]
+  ang_vel_yaw:      [-1.0, 1.0]
+
+init_state:
+  pos: [0.0, 0.0, 0.1]
+#  default_left_joint_angles:  [0.1 , 0.0, 1.0, -1.8, 1.57, -1.57]
+#  default_right_joint_angles: [-0.1, 0.0, 1.0, -1.8, 1.57, -1.57]
+  default_left_joint_angles:  [0.0045, 0.0, 0.4973, -1.1997, -1.5968]
+  default_right_joint_angles: [-0.0045, 0.0, 0.4973, -1.1997, -1.5968]
+
+control:
+  # PD Drive parameters:
+  P: [100.0, 100.0,  88.0,  96.0,  50.0]
+  D: [ 10.0,  10.0,   8.0,   9.6,   5.0]
+  # action scale: target angle = actionScale * action + defaultAngle
+  action_scale: 0.5
+  # decimation: Number of control action updates @ sim DT per policy DT
+  decimation: 60
+
+rewards:
+  omega: 0.5
+  scales:
+    ref:    0.1
+    spring: 0.1
+    ori:    0.1
+    vel:    0.1
+    termin: 0.1
+
+hydra:
+  run:
+    <<: *log_path
